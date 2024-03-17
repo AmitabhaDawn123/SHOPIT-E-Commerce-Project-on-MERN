@@ -1,10 +1,10 @@
-import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
-import User from "../models/user.js";
-import ErrorHandler from "../utils/errorHandler.js"
-import sendToken from "../utils/sendToken.js";
-import sendEmail from "../utils/sendEmail.js"
-import { getResetPasswordTemplate } from "../utils/emailTemplates.js";
-import crypto from  "crypto";
+// import catchAsyncErrors from "../middlewares/catchAsyncErrors.js";
+// import User from "../models/user.js";
+// import ErrorHandler from "../utils/errorHandler.js"
+// import sendToken from "../utils/sendToken.js";
+// import sendEmail from "../utils/sendEmail.js"
+// import { getResetPasswordTemplate } from "../utils/emailTemplates.js";
+// import crypto from  "crypto";
 
 
 
