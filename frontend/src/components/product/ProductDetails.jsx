@@ -1,16 +1,22 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useGetProductDetailsQuery } from '../../redux/api/productsApi'
 import { Link, useParams } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import Loader from '../layout/Loader';
-
+import StarRatings from "react-star-ratings"
 const ProductDetails = () => {
 
-debugger;
+
     const params=useParams();
     const {data,isError,error,isLoading}=useGetProductDetailsQuery(params?.id)
     
     const product= data?.product;
+    const [activeImg,setActiveImg]=useState('')
+
+
+    useEffect(()=>{
+      setActiveImg(product?.images[0]?product?.images[0]?.url : '/images/default_product.png');
+    },[product]);
 
 
     useEffect(()=>{
@@ -33,24 +39,29 @@ debugger;
         <div className="p-3">
           <img
             className="d-block w-100"
-            src="./images//default_product.png"
-            alt=""
+            src={activeImg}
+            alt={product?.name}
             width="340"
             height="390"
           />
         </div>
         <div className="row justify-content-start mt-5">
-          <div className="col-2 ms-4 mt-2">
-            <Link role="button">
-              <img
-                className="d-block border rounded p-3 cursor-pointer"
-                height="100"
-                width="100"
-                src="./images//default_product.png"
-                alt=""
-              />
-            </Link>
-          </div>
+          {product?.images?.map((img) => (
+             <div className="col-2 ms-4 mt-2">
+             <Link role="button">
+               <img
+                 className={`d-block border rounded p-3 cursor-pointer ${img.url===activeImg?"border-warning":""}`}
+                 height="100"
+                 width="100"
+                 src={img?.url}
+                 alt={img?.url}
+                 onClick={(e)=>setActiveImg(img.url)}
+               />
+             </Link>
+           </div>
+
+          ))}
+         
         </div>
       </div>
 
@@ -61,13 +72,15 @@ debugger;
         <hr />
 
         <div className="d-flex">
-          <div className="star-ratings">
-            <i className="fa fa-star star-active"></i>
-            <i className="fa fa-star star-active"></i>
-            <i className="fa fa-star star-active"></i>
-            <i className="fa fa-star star-active"></i>
-            <i className="fa fa-star star-active"></i>
-          </div>
+        <StarRatings
+          rating={product?.ratings}
+          starRatedColor="#ffb829"
+          
+          numberOfStars={5}
+          name='rating'
+          starDimension='24px'
+          starSpacing='1px'
+        />
           <span id="no-of-reviews" className="pt-1 ps-2"> ({product?.numOfReviews} Reviews) </span>
         </div>
         <hr />
@@ -95,7 +108,7 @@ debugger;
         <hr />
 
         <p>
-          Status: <span id="stock_status" className="greenColor">In Stock</span>
+          Status: <span id="stock_status" className={product?.stock>0?"greenColor": "redColor"}>{product?.stock>0?"In Stock": "Out of Stock"}</span>
         </p>
 
         <hr />

@@ -1,3 +1,4 @@
+/* eslint-disable react/jsx-no-undef */
 import React, { useEffect } from 'react'
 import MetaData from './layout/MetaData'
 import { useGetProductsQuery } from '../redux/api/productsApi'
@@ -5,17 +6,36 @@ import { useGetProductsQuery } from '../redux/api/productsApi'
 import ProductItem from './product/ProductItem';
 import Loader from './layout/Loader';
 import toast from 'react-hot-toast';
+import CustomPagination from './layout/CustomPagination';
+import {  useSearchParams } from 'react-router-dom';
+import Filters from './layout/Filters';
 
 const Home = () => {
 
+let [searchPrarams]=useSearchParams();
 
-    const {data,isLoading,error,isError}=useGetProductsQuery();
+const page=searchPrarams.get("page")||1;
+
+
+const keyword=searchPrarams.get("keyword")||"";
+const min=searchPrarams.get("min")
+const max=searchPrarams.get("max")
+const params={page,keyword}
+
+
+min!==null && (params.min=min)
+
+max!==null && (params.max=max)
+
+
+    const {data,isLoading,error,isError}=useGetProductsQuery(params);
 useEffect(()=>{
     if(isError){
 toast.error(error?.data?.message)
     }
 },[isError])
 
+const columnSize= keyword?4:3;
 
     console.log(data,isLoading);
 
@@ -24,18 +44,29 @@ toast.error(error?.data?.message)
   <>
   <MetaData title={'Buy Best Products Online'}/>
     <div className="row">
-      <div className="col-12 col-sm-6 col-md-12">
-        <h1 id="products_heading" className="text-secondary">Latest Products</h1>
+      {keyword && (
+        <div className='col-6 col-md-3 mt-5'>
+          <p>
+            <Filters/>
+          </p>
+        </div>
+      )}
+      <div className={keyword? "col-12 col-sm-6 col-md-9":"col-12 col-sm-6 col-md-12"}>
+        <h1 id="products_heading" className="text-secondary">
+          {keyword?`${data?.products?.length} Products found with Keyword: ${keyword}`:" Latest Products"}
+         </h1>
 
         <section id="products" className="mt-5">
           <div className="row">
             {data?.products?.map((product)=>(
-                <ProductItem product= {product}/>
+                <ProductItem product= {product} columnSize={columnSize}/>
             ))}
            
           
           </div>
         </section>
+
+        <CustomPagination resPerPage={data?.resPerPage} filteredProductsCount={data?.filteredProductsCount}/>
       </div>
     </div>
     </>
