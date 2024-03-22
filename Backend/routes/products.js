@@ -7,10 +7,10 @@ router.route("/products").get(getProducts);
 router.route("/products").post(newProduct);
 router.route("/products/:id").get(getProductDetails);//admin
 router.route("/products/:id").put(updateProduct);//admin
-router.route("/products/:id").delete(isAuthenticatedUser,authorizeRoles("admin"),deleteProduct);//admin
+router.route("/products/:id").delete(deleteProduct);//admin
 router.route("/reviews").put(isAuthenticatedUser,createProductReview);
 router.route("/reviews").get(isAuthenticatedUser,getProductReviews);
-router.route("/admin/reviews").delete(isAuthenticatedUser,authorizeRoles("admin"),deleteReview);
+router.route("/reviews").delete(isAuthenticatedUser,deleteReview);//admin
 
 // isAuthenticatedUser,authorizeRoles("admin"),
 // admin/
