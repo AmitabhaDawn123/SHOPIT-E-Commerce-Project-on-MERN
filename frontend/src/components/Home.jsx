@@ -1,77 +1,73 @@
-/* eslint-disable react/jsx-no-undef */
-import React, { useEffect } from 'react'
-import MetaData from './layout/MetaData'
-import { useGetProductsQuery } from '../redux/api/productsApi'
-// import product from '../../../Backend/models/product';
-import ProductItem from './product/ProductItem';
-import Loader from './layout/Loader';
-import toast from 'react-hot-toast';
-import CustomPagination from './layout/CustomPagination';
-import {  useSearchParams } from 'react-router-dom';
-import Filters from './layout/Filters';
+import React, { useEffect } from "react";
+import MetaData from "./layout/MetaData";
+import { useGetProductsQuery } from "../redux/api/productsApi";
+import ProductItem from "./product/ProductItem";
+import Loader from "./layout/Loader";
+import toast from "react-hot-toast";
+import CustomPagination from "./layout/CustomPagination";
+import { useSearchParams } from "react-router-dom";
+import Filters from "./layout/Filters";
 
 const Home = () => {
+  let [searchParams] = useSearchParams();
+  const page = searchParams.get("page") || 1;
+  const keyword = searchParams.get("keyword") || "";
+  const min = searchParams.get("min");
+  const max = searchParams.get("max");
+  const category = searchParams.get("category");
+  const ratings = searchParams.get("ratings");
 
-let [searchPrarams]=useSearchParams();
+  const params = { page, keyword };
 
-const page=searchPrarams.get("page")||1;
+  min !== null && (params.min = min);
+  max !== null && (params.max = max);
+  category !== null && (params.category = category);
+  ratings !== null && (params.ratings = ratings);
 
+  const { data, isLoading, error, isError } = useGetProductsQuery(params);
 
-const keyword=searchPrarams.get("keyword")||"";
-const min=searchPrarams.get("min")
-const max=searchPrarams.get("max")
-const params={page,keyword}
-
-
-min!==null && (params.min=min)
-
-max!==null && (params.max=max)
-
-
-    const {data,isLoading,error,isError}=useGetProductsQuery(params);
-useEffect(()=>{
-    if(isError){
-toast.error(error?.data?.message)
+  useEffect(() => {
+    if (isError) {
+      toast.error(error?.data?.message);
     }
-},[isError])
+  }, [isError]);
 
-const columnSize= keyword?4:3;
+  const columnSize = keyword ? 4 : 3;
 
-    console.log(data,isLoading);
+  if (isLoading) return <Loader />;
 
-    if(isLoading) return <Loader/>
   return (
-  <>
-  <MetaData title={'Buy Best Products Online'}/>
-    <div className="row">
-      {keyword && (
-        <div className='col-6 col-md-3 mt-5'>
-          <p>
-            <Filters/>
-          </p>
-        </div>
-      )}
-      <div className={keyword? "col-12 col-sm-6 col-md-9":"col-12 col-sm-6 col-md-12"}>
-        <h1 id="products_heading" className="text-secondary">
-          {keyword?`${data?.products?.length} Products found with Keyword: ${keyword}`:" Latest Products"}
-         </h1>
-
-        <section id="products" className="mt-5">
-          <div className="row">
-            {data?.products?.map((product)=>(
-                <ProductItem product= {product} columnSize={columnSize}/>
-            ))}
-           
-          
+    <>
+      <MetaData title={"Buy Best Products Online"} />
+      <div className="row">
+        {keyword && (
+          <div className="col-6 col-md-3 mt-5">
+            <Filters />
           </div>
-        </section>
+        )}
+        <div className={keyword ? "col-6 col-md-9" : "col-6 col-md-12"}>
+          <h1 id="products_heading" className="text-secondary">
+            {keyword
+              ? `${data?.products?.length} Products found with keyword: ${keyword}`
+              : "Latest Products"}
+          </h1>
 
-        <CustomPagination resPerPage={data?.resPerPage} filteredProductsCount={data?.filteredProductsCount}/>
+          <section id="products" className="mt-5">
+            <div className="row">
+              {data?.products?.map((product) => (
+                <ProductItem product={product} columnSize={columnSize} />
+              ))}
+            </div>
+          </section>
+
+          <CustomPagination
+            resPerPage={data?.resPerPage}
+            filteredProductsCount={data?.filteredProductsCount}
+          />
+        </div>
       </div>
-    </div>
     </>
- 
-  )
-}
+  );
+};
 
-export default Home
+export default Home;

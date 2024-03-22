@@ -1,10 +1,26 @@
-import React from 'react'
-import Search from './Search.jsx'
+import React from "react";
+import Search from "./Search";
+import { useGetMeQuery } from "../../redux/api/userApi";
+import { useSelector } from "react-redux";
+import { Link, useNavigate } from "react-router-dom";
+import { useLazyLogoutQuery } from "../../redux/api/authApi";
 
 const Header = () => {
+  const navigate = useNavigate();
+
+  const { isLoading } = useGetMeQuery();
+  const [logout] = useLazyLogoutQuery();
+
+  const { user } = useSelector((state) => state.auth);
+  const { cartItems } = useSelector((state) => state.cart);
+
+  const logoutHandler = () => {
+    logout();
+    navigate(0);
+  };
+
   return (
-    <div>
-      <nav className="navbar row">
+    <nav className="navbar row">
       <div className="col-12 col-md-3 ps-5">
         <div className="navbar-brand">
           <a href="/">
@@ -13,47 +29,82 @@ const Header = () => {
         </div>
       </div>
       <div className="col-12 col-md-6 mt-2 mt-md-0">
-        <Search/>
+        <Search />
       </div>
       <div className="col-12 col-md-3 mt-4 mt-md-0 text-center">
-        <a href="/cart" style={{textDecoration: "none"}}>
-          <span id="cart" className="ms-3"> Cart </span>
-          <span className="ms-1" id="cart_count">0</span>
+        <a href="/cart" style={{ textDecoration: "none" }}>
+          <span id="cart" className="ms-3">
+            {" "}
+            Cart{" "}
+          </span>
+          <span className="ms-1" id="cart_count">
+            {cartItems?.length}
+          </span>
         </a>
 
-        <div className="ms-4 dropdown">
-          <button
-            className="btn dropdown-toggle text-white"
-            type="button"
-            id="dropDownMenuButton"
-            data-bs-toggle="dropdown"
-            aria-expanded="false"
-          >
-            <figure className="avatar avatar-nav">
-              <img
-                src="../images/default_avatar.jpg"
-                alt="User Avatar"
-                className="rounded-circle"
-              />
-            </figure>
-            <span>User</span>
-          </button>
-          <div className="dropdown-menu w-100" aria-labelledby="dropDownMenuButton">
-            <a className="dropdown-item" href="/admin/dashboard"> Dashboard </a>
+        {user ? (
+          <div className="ms-4 dropdown">
+            <button
+              className="btn dropdown-toggle text-white"
+              type="button"
+              id="dropDownMenuButton"
+              data-bs-toggle="dropdown"
+              aria-expanded="false"
+            >
+              <figure className="avatar avatar-nav">
+                <img
+                  src={
+                    user?.avatar
+                      ? user?.avatar?.url
+                      : "/images/default_avatar.jpg"
+                  }
+                  alt="User Avatar"
+                  className="rounded-circle"
+                />
+              </figure>
+              <span>{user?.name}</span>
+            </button>
+            <div
+              className="dropdown-menu w-100"
+              aria-labelledby="dropDownMenuButton"
+            >
+              {user?.role === "admin" && (
+                <Link className="dropdown-item" to="/admin/dashboard">
+                  {" "}
+                  Dashboard{" "}
+                </Link>
+              )}
 
-            <a className="dropdown-item" href="/me/orders"> Orders </a>
+              <Link className="dropdown-item" to="/me/orders">
+                {" "}
+                Orders{" "}
+              </Link>
 
-            <a className="dropdown-item" href="/me/profile"> Profile </a>
+              <Link className="dropdown-item" to="/me/profile">
+                {" "}
+                Profile{" "}
+              </Link>
 
-            <a className="dropdown-item text-danger" href="/"> Logout </a>
+              <Link
+                className="dropdown-item text-danger"
+                to="/"
+                onClick={logoutHandler}
+              >
+                Logout{" "}
+              </Link>
+            </div>
           </div>
-        </div>
-
-        <a href="/login" className="btn ms-4" id="login_btn"> Login </a>
+        ) : (
+          !isLoading && (
+            <Link to="/login" className="btn ms-4" id="login_btn">
+              {" "}
+              Login{" "}
+            </Link>
+          )
+        )}
       </div>
     </nav>
-    </div>
-  )
-}
+  );
+};
 
-export default Header
+export default Header;
